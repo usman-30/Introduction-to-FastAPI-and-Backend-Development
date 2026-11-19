@@ -2,6 +2,7 @@
 from typing import Any
 from fastapi import FastAPI,status, HTTPException
 from scalar_fastapi import get_scalar_api_reference
+from Schema import Shipment
 
 app = FastAPI(title="Shipment API")
 
@@ -45,19 +46,13 @@ def get_shipment(id: int | None = None) -> dict[str, Any]:
 
 #post method to add shipment data
 @app.post("/shipment")
-def add_shipment(weight:float,data:dict[str,str]) -> dict[str, Any]:
-    content = data.get("content")
+def add_shipment(body:Shipment) -> dict[str, Any]:
+    #content = data.get("content")
 
-    if weight >25:
-        raise HTTPException(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            detail="Weight exceeds the maximum allowed limit of 25"
-            
-        )
     new_id = max(shipment.keys()) + 1 
     shipment[new_id]={
-        "content":content,
-        "weight":weight,
+        "content":body.content,
+        "weight":body.weight,
         "status":"placed"
     }
 
@@ -77,6 +72,32 @@ def shipment_update(id:int,content:str,status:str,weight:float) -> dict[str,Any]
         "status":status
     }
     return shipment[id] 
+
+@app.patch("/shipment")
+def path_shipment(id:int,
+                  body:dict[str,Any]
+                 # content:str | None=None,
+                 # weight:str | None=None ,
+                 # status:str | None=None
+                 )-> dict[str,Any]:
+    shipments=shipment[id]
+
+    #if content:
+    #    shipments[content]=content
+    #if status:
+    #    shipments[status]=status
+    #if weight:
+    #    shipments[weight]=weight
+    shipments.update(body)
+    shipment[id]=shipments
+    return shipments
+
+# Delete Items using pop method
+@app.delete("/shipment")
+def delete_shipment(id:int)-> dict[str,str]:
+    shipment.pop(id)
+    return {"Detail":f"shipment with id {id} is deleted!"}
+
     
 
 # Scalar API documentation
