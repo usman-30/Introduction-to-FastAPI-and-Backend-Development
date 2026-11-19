@@ -81,6 +81,31 @@ def update_shipment(id:int,content:str,weight:float,status:str) -> dict[str,Any]
      }
     return shipment[id]
 
+# Update Exiting values
+@app.patch("/shipment")
+def path_shipment(id:int,
+                  body:dict[str,Any]
+                 # content:str | None=None,
+                 # weight:str | None=None ,
+                 # status:str | None=None
+                 )-> dict[str,Any]:
+    shipments=shipment[id]
+
+    #if content:
+    #    shipments[content]=content
+    #if status:
+    #    shipments[status]=status
+    #if weight:
+    #    shipments[weight]=weight
+    shipments.update(body)
+    shipment[id]=shipments
+    return shipments
+
+# Delete Items using pop method
+@app.delete("/shipment")
+def delete_shipment(id:int)-> dict[str,str]:
+    shipment.pop(id)
+    return {"Detail":f"shipment with id {id} is deleted!"}
 
 # Scalar API documentation
 @app.get("/scalar", include_in_schema=False)
