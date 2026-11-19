@@ -1,6 +1,5 @@
 
 from typing import Any
-
 from fastapi import FastAPI,status, HTTPException
 from scalar_fastapi import get_scalar_api_reference
 
@@ -46,7 +45,8 @@ def get_shipment(id: int | None = None) -> dict[str, Any]:
 
 #post method to add shipment data
 @app.post("/shipment")
-def add_shipment(content:str,weight:float) -> dict[str, Any]:
+def add_shipment(weight:float,data:dict[str,str]) -> dict[str, Any]:
+    content = data.get("content")
 
     if weight >25:
         raise HTTPException(
@@ -63,6 +63,21 @@ def add_shipment(content:str,weight:float) -> dict[str, Any]:
 
     return {"id": new_id}
 
+@app.get("/shipment/{field}")
+def get_shipment_field(field:str,id:int)-> dict[str,Any]:
+    return{
+        field:shipment[id][field]
+    }
+#Update shipment using PUT Method
+@app.put("/shipment")
+def shipment_update(id:int,content:str,status:str,weight:float) -> dict[str,Any]:
+    shipment[id]={
+        "content":content,
+        "weight":weight,
+        "status":status
+    }
+    return shipment[id] 
+    
 
 # Scalar API documentation
 @app.get("/scalar", include_in_schema=False)
